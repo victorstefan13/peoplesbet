@@ -5,6 +5,32 @@
     <title>People's Bet - Ruletă Realistă</title>
     <link rel="stylesheet" href="style.css">
     <style>
+        /* Dual Side-Banner Layout via CSS Backgrounds */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #02060e;
+            background-image: url('logo.jpg'), url('logo.jpg');
+            background-position: left top, right top;
+            background-repeat: no-repeat, no-repeat;
+            background-size: 320px auto, 320px auto; 
+            background-attachment: fixed, fixed; 
+        }
+
+        /* Responsive break: Hide side banners on smaller monitors to preserve layout integrity */
+        @media (max-width: 1400px) {
+            body {
+                background-image: none;
+            }
+        }
+
+        /* Centers the main panel cleanly between the artwork panels */
+        .content-wrapper {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
         .roulette-container { display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .wheel-graphic {
             width: 180px; height: 180px; border-radius: 50%; border: 8px solid #b38f44;
@@ -49,43 +75,45 @@
         </nav>
     </header>
 
-    <main>
-        <div class="main-panel">
-            <h2 class="text-center">🔮 Masă de Ruletă Realistă (0-36)</h2>
-            <p class="text-center" style="color: var(--text-muted); margin-bottom: 15px;">Alege un număr individual (câștig x35) sau un pariu exterior (câștig x2)!</p>
+    <div class="content-wrapper">
+        <main>
+            <div class="main-panel">
+                <h2 class="text-center">🔮 Masă de Ruletă Realistă (0-36)</h2>
+                <p class="text-center" style="color: var(--text-muted); margin-bottom: 15px;">Alege un număr individual (câștig x35) sau un pariu exterior (câștig x2)!</p>
 
-            <div class="casino-game-wrapper roulette-container">
-                <div class="wheel-graphic" id="wheel">?</div>
-                
-                <div style="font-weight: bold; font-size: 1.1rem; margin-bottom: 5px;">Plasează pariul selectând o opțiune de mai jos:</div>
-                <div style="color: #fae3a6 !important; font-weight: bold; margin-bottom: 15px;" id="currentSelectionText">Selecție curentă: Nimic selectat</div>
+                <div class="casino-game-wrapper roulette-container">
+                    <div class="wheel-graphic" id="wheel">?</div>
+                    
+                    <div style="font-weight: bold; font-size: 1.1rem; margin-bottom: 5px;">Plasează pariul selectând o opțiune de mai jos:</div>
+                    <div style="color: #fae3a6 !important; font-weight: bold; margin-bottom: 15px;" id="currentSelectionText">Selecție curentă: Nimic selectat</div>
 
-                <div style="width: 100%; max-width: 750px; display: flex; justify-content: center;">
-                    <div class="outside-cell cell-green" style="max-width: 120px; margin-bottom: 5px;" id="cell-0" onclick="selectItem('NUMBER', 0)">Numărul 0</div>
+                    <div style="width: 100%; max-width: 750px; display: flex; justify-content: center;">
+                        <div class="outside-cell cell-green" style="max-width: 120px; margin-bottom: 5px;" id="cell-0" onclick="selectItem('NUMBER', 0)">Numărul 0</div>
+                    </div>
+
+                    <div class="betting-table" id="tableBoard"></div>
+
+                    <div class="outside-board">
+                        <div class="outside-cell cell-red" id="cell-RED" onclick="selectItem('COLOR', 'ROȘU')">ROȘU</div>
+                        <div class="outside-cell cell-black" id="cell-BLACK" onclick="selectItem('COLOR', 'NEGRU')">NEGRU</div>
+                        <div class="outside-cell" id="cell-EVEN" onclick="selectItem('PARITY', 'PAR')">PAR</div>
+                        <div class="outside-cell" id="cell-ODD" onclick="selectItem('PARITY', 'IMPAR')">IMPAR</div>
+                    </div>
+
+                    <div style="margin: 15px 0; display: flex; align-items: center; gap: 10px;">
+                        <label style="font-weight: bold;">Miză pariu (RON): </label>
+                        <input type="number" id="rouletteMiza" value="50" min="5" style="padding: 8px; background: #000; color: #fff; border: 1px solid #b38f44; border-radius: 4px; width: 90px; font-weight: bold;">
+                        <button class="btn" style="padding: 10px 30px;" onclick="spinWheel()">ÎNVÂRTE ROATA</button>
+                    </div>
+
+                    <h3 id="rouletteResult" style="margin: 10px 0; min-height: 30px; text-center"></h3>
+                    
+                    <div style="margin-top: 10px;">Istoric ultimele numere:</div>
+                    <div class="history-box" id="historyBox"></div>
                 </div>
-
-                <div class="betting-table" id="tableBoard"></div>
-
-                <div class="outside-board">
-                    <div class="outside-cell cell-red" id="cell-RED" onclick="selectItem('COLOR', 'ROȘU')">ROȘU</div>
-                    <div class="outside-cell cell-black" id="cell-BLACK" onclick="selectItem('COLOR', 'NEGRU')">NEGRU</div>
-                    <div class="outside-cell" id="cell-EVEN" onclick="selectItem('PARITY', 'PAR')">PAR</div>
-                    <div class="outside-cell" id="cell-ODD" onclick="selectItem('PARITY', 'IMPAR')">IMPAR</div>
-                </div>
-
-                <div style="margin: 15px 0; display: flex; align-items: center; gap: 10px;">
-                    <label style="font-weight: bold;">Miză pariu (RON): </label>
-                    <input type="number" id="rouletteMiza" value="50" min="5" style="padding: 8px; background: #000; color: #fff; border: 1px solid #b38f44; border-radius: 4px; width: 90px; font-weight: bold;">
-                    <button class="btn" style="padding: 10px 30px;" onclick="spinWheel()">ÎNVÂRTE ROATA</button>
-                </div>
-
-                <h3 id="rouletteResult" style="margin: 10px 0; min-height: 30px; text-center"></h3>
-                
-                <div style="margin-top: 10px;">Istoric ultimele numere:</div>
-                <div class="history-box" id="historyBox"></div>
             </div>
-        </div>
-    </main>
+        </main>
+    </div>
 
     <script>
         let wallet = parseFloat(localStorage.getItem('peoples_bet_wallet')) || 1000;
@@ -136,7 +164,6 @@
 
             let wheel = document.getElementById('wheel');
             
-            // Fix: Clear transition instantly and reset wheel spin degree tracking to 0
             wheel.style.transition = 'none';
             wheel.style.transform = 'rotate(0deg)';
             wheel.innerText = "?";
@@ -144,7 +171,6 @@
             
             document.getElementById('rouletteResult').innerText = "Bila se învârte...";
 
-            // Trigger the fresh random rotation spin after a tiny 50ms pause
             setTimeout(() => {
                 wheel.style.transition = 'transform 4s cubic-bezier(0.1, 0.8, 0.1, 1)';
                 let randomRotation = Math.floor(Math.random() * 360) + 2160; 
