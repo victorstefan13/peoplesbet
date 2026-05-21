@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <title>People's Bet - Sloturi Royale</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .slots-machine {
+            background: radial-gradient(circle, #2a1b08 0%, #0d0802 100%);
+            border: 4px solid #b38f44; border-radius: 12px;
+            padding: 30px; width: 100%; max-width: 500px; margin: 0 auto;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.8);
+        }
+        .reels-container { display: flex; justify-content: space-between; margin-bottom: 25px; gap: 15px; }
+        .reel {
+            background: #fff; color: #000 !important; font-size: 3.5rem; width: 110px; height: 110px;
+            display: flex; align-items: center; justify-content: center; border-radius: 8px;
+            border: 3px solid #3a220c; font-weight: bold;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.4);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div>
+            <span class="logo-text">People's Bet</span>
+            <div class="tagline">sloturi norocoase</div>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="index.html">Sport</a></li>
+                <li><a href="roulette.html">Ruletă</a></li>
+                <li><a href="slots.html" style="color:#f3c258">Sloturi</a></li>
+                <li><div class="balance-box">Portofel: <span id="balanceDisplay">1000</span> RON</div></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <div class="main-panel">
+            <h2 class="text-center">💎 Aparat de Sloturi Premium</h2>
+            <p class="text-center" style="color: var(--text-muted); margin-bottom: 15px;">Aliniați 3 simboluri identice pentru Jackpot-ul cel mare!</p>
+
+            <div class="casino-game-wrapper text-center">
+                <div class="slots-machine">
+                    <div class="reels-container">
+                        <div class="reel" id="reel1">7️⃣</div>
+                        <div class="reel" id="reel2">💎</div>
+                        <div class="reel" id="reel3">🍒</div>
+                    </div>
+
+                    <div class="margin-b">
+                        <label style="font-weight: bold; font-size: 1.1rem;">Cost per Rotire: </label>
+                        <select id="spinCost" style="padding: 8px; background: #000; color:#f3c258; border:2px solid #b38f44; border-radius:4px; font-weight: bold;">
+                            <option value="10">10 RON</option>
+                            <option value="20">20 RON</option>
+                            <option value="50">50 RON</option>
+                            <option value="100">100 RON</option>
+                        </select>
+                    </div>
+
+                    <button class="btn" style="width: 100%; font-size: 1.4rem; padding: 12px;" onclick="spinSlots()">INVÂRTE (SPIN)</button>
+                </div>
+
+                <h2 id="slotsWinText" style="margin-top: 25px; min-height: 40px; color: #f3c258 !important;"></h2>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let wallet = parseFloat(localStorage.getItem('peoples_bet_wallet')) || 1000;
+        const symbols = ['🍒', '🍋', '🔔', '💎', '7️⃣'];
+
+        function updateDisplay() {
+            document.getElementById('balanceDisplay').innerText = wallet.toFixed(2);
+            localStorage.setItem('peoples_bet_wallet', wallet);
+        }
+
+        function spinSlots() {
+            let cost = parseFloat(document.getElementById('spinCost').value);
+            if (cost > wallet) { alert("Fonduri insuficiente în portofel!"); return; }
+
+            wallet -= cost;
+            updateDisplay();
+            document.getElementById('slotsWinText').innerText = "🎰 Rolele se învârt...";
+
+            let count = 0;
+            let timer = setInterval(() => {
+                document.getElementById('reel1').innerText = symbols[Math.floor(Math.random() * symbols.length)];
+                document.getElementById('reel2').innerText = symbols[Math.floor(Math.random() * symbols.length)];
+                document.getElementById('reel3').innerText = symbols[Math.floor(Math.random() * symbols.length)];
+                count++;
+                
+                if(count > 15) {
+                    clearInterval(timer);
+                    finalizeSpin(cost);
+                }
+            }, 70);
+        }
+
+        function finalizeSpin(cost) {
+            let r1 = symbols[Math.floor(Math.random() * symbols.length)];
+            let r2 = symbols[Math.floor(Math.random() * symbols.length)];
+            let r3 = symbols[Math.floor(Math.random() * symbols.length)];
+
+            document.getElementById('reel1').innerText = r1;
+            document.getElementById('reel2').innerText = r2;
+            document.getElementById('reel3').innerText = r3;
+
+            let winText = document.getElementById('slotsWinText');
+
+            if (r1 === r2 && r2 === r3) {
+                let prize = cost * 10;
+                if (r1 === '7️⃣') prize = cost * 25; 
+                wallet += prize;
+                winText.innerHTML = `<span style="color:#2cb49b !important;">💰 JACKPOT! Trei de-un fel! Ai câștigat ${prize} RON!</span>`;
+            } else if (r1 === r2 || r2 === r3 || r1 === r3) {
+                let prize = cost * 2;
+                wallet += prize;
+                winText.innerHTML = `<span style="color:#ecc050 !important;">🎉 Dublă! Ai câștigat ${prize} RON!</span>`;
+            } else {
+                winText.innerHTML = `<span style="color:#e53e3e !important;">❌ Nicio combinație câștigătoare. Mai încearcă!</span>`;
+            }
+            updateDisplay();
+        }
+        updateDisplay();
+    </script>
+</body>
+</html>

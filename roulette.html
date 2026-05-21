@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <title>People's Bet - Ruletă Realistă</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .roulette-container { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .wheel-graphic {
+            width: 180px; height: 180px; border-radius: 50%; border: 8px solid #b38f44;
+            background: conic-gradient(#000 0deg, #b81d1d 10deg, #000 20deg, #b81d1d 30deg, #000 40deg, #b81d1d 50deg, #000 60deg, #b81d1d 70deg, #000 80deg, #b81d1d 90deg, #000 100deg, #b81d1d 110deg, #000 120deg, #b81d1d 130deg, #000 140deg, #b81d1d 150deg, #000 160deg, #b81d1d 170deg, #000 180deg, #b81d1d 190deg, #000 200deg, #b81d1d 210deg, #000 220deg, #b81d1d 230deg, #000 240deg, #b81d1d 250deg, #000 260deg, #b81d1d 270deg, #000 280deg, #b81d1d 290deg, #000 300deg, #b81d1d 310deg, #000 320deg, #b81d1d 330deg, #000 340deg, #b81d1d 350deg, #14725f 360deg);
+            margin-bottom: 20px; display: flex; align-items: center; justify-content: center;
+            font-size: 2.5rem; font-weight: bold; color: #f3c258; text-shadow: 0 3px 6px #000;
+            transition: transform 4s cubic-bezier(0.1, 0.8, 0.1, 1);
+        }
+        
+        .betting-table {
+            display: grid; grid-template-columns: repeat(12, 1fr); gap: 4px;
+            width: 100%; max-width: 750px; margin: 15px 0; background: #02060e; padding: 10px; border-radius: 6px; border: 1px solid #b38f44;
+        }
+        .grid-cell {
+            padding: 10px 0; text-align: center; font-weight: bold; cursor: pointer; border-radius: 4px; font-size: 0.95rem; border: 1px solid rgba(243,194,88,0.2);
+        }
+        .cell-red { background: #b81d1d; color: white; }
+        .cell-black { background: #111; color: white; border: 1px solid #333; }
+        .cell-green { background: #14725f; color: white; }
+        
+        .outside-board { display: flex; gap: 8px; width: 100%; max-width: 750px; margin-bottom: 15px; }
+        .outside-cell { flex: 1; padding: 12px; text-align: center; font-weight: bold; cursor: pointer; border-radius: 4px; background: #162238; border: 1px solid #b38f44; }
+        
+        .selected-bet { border: 2px solid #fff !important; box-shadow: 0 0 12px #fff; transform: scale(1.03); }
+        .history-box { display: flex; gap: 6px; margin-top: 10px; min-height: 30px; }
+        .hist-ball { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.8rem; color: #fff; }
+    </style>
+</head>
+<body>
+    <header>
+        <div>
+            <span class="logo-text">People's Bet</span>
+            <div class="tagline">cazino premium</div>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="index.html">Sport</a></li>
+                <li><a href="roulette.html" style="color:#f3c258">Ruletă</a></li>
+                <li><a href="slots.html">Sloturi</a></li>
+                <li><div class="balance-box">Portofel: <span id="balanceDisplay">1000</span> RON</div></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <div class="main-panel">
+            <h2 class="text-center">🔮 Masă de Ruletă Realistă (0-36)</h2>
+            <p class="text-center" style="color: var(--text-muted); margin-bottom: 15px;">Alege un număr individual (câștig x35) sau un pariu exterior (câștig x2)!</p>
+
+            <div class="casino-game-wrapper roulette-container">
+                <div class="wheel-graphic" id="wheel">?</div>
+                
+                <div style="font-weight: bold; font-size: 1.1rem; margin-bottom: 5px;">Plasează pariul selectând o opțiune de mai jos:</div>
+                <div style="color: #fae3a6 !important; font-weight: bold; margin-bottom: 15px;" id="currentSelectionText">Selecție curentă: Nimic selectat</div>
+
+                <div style="width: 100%; max-width: 750px; display: flex; justify-content: center;">
+                    <div class="outside-cell cell-green" style="max-width: 120px; margin-bottom: 5px;" id="cell-0" onclick="selectItem('NUMBER', 0)">Numărul 0</div>
+                </div>
+
+                <div class="betting-table" id="tableBoard"></div>
+
+                <div class="outside-board">
+                    <div class="outside-cell cell-red" id="cell-RED" onclick="selectItem('COLOR', 'ROȘU')">ROȘU</div>
+                    <div class="outside-cell cell-black" id="cell-BLACK" onclick="selectItem('COLOR', 'NEGRU')">NEGRU</div>
+                    <div class="outside-cell" id="cell-EVEN" onclick="selectItem('PARITY', 'PAR')">PAR</div>
+                    <div class="outside-cell" id="cell-ODD" onclick="selectItem('PARITY', 'IMPAR')">IMPAR</div>
+                </div>
+
+                <div style="margin: 15px 0; display: flex; align-items: center; gap: 10px;">
+                    <label style="font-weight: bold;">Miză pariu (RON): </label>
+                    <input type="number" id="rouletteMiza" value="50" min="5" style="padding: 8px; background: #000; color: #fff; border: 1px solid #b38f44; border-radius: 4px; width: 90px; font-weight: bold;">
+                    <button class="btn" style="padding: 10px 30px;" onclick="spinWheel()">ÎNVÂRTE ROATA</button>
+                </div>
+
+                <h3 id="rouletteResult" style="margin: 10px 0; min-height: 30px; text-center"></h3>
+                
+                <div style="margin-top: 10px;">Istoric ultimele numere:</div>
+                <div class="history-box" id="historyBox"></div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let wallet = parseFloat(localStorage.getItem('peoples_bet_wallet')) || 1000;
+        let activeBet = null;
+        let isSpinning = false;
+
+        const redNumbers = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36];
+
+        const board = document.getElementById('tableBoard');
+        for (let i = 1; i <= 36; i++) {
+            let isRed = redNumbers.includes(i);
+            let cls = isRed ? 'cell-red' : 'cell-black';
+            board.innerHTML += `<div class="grid-cell ${cls}" id="cell-${i}" onclick="selectItem('NUMBER', ${i})">${i}</div>`;
+        }
+
+        function updateDisplay() {
+            document.getElementById('balanceDisplay').innerText = wallet.toFixed(2);
+            localStorage.setItem('peoples_bet_wallet', wallet);
+        }
+
+        function selectItem(type, val) {
+            if (isSpinning) return;
+            activeBet = { type, val };
+            
+            document.querySelectorAll('.grid-cell, .outside-cell').forEach(el => el.classList.remove('selected-bet'));
+            
+            let id = `cell-${val}`;
+            if(val === 'ROȘU') id = 'cell-RED';
+            if(val === 'NEGRU') id = 'cell-BLACK';
+            if(val === 'PAR') id = 'cell-EVEN';
+            if(val === 'IMPAR') id = 'cell-ODD';
+            
+            document.getElementById(id).classList.add('selected-bet');
+            document.getElementById('currentSelectionText').innerText = `Selecție curentă: Pui banii pe [ ${val} ]`;
+        }
+
+        function spinWheel() {
+            if (isSpinning) return;
+            if (!activeBet) { alert("Alege un număr sau o culoare de pe masă înainte de a învârti!"); return; }
+            
+            let miza = parseFloat(document.getElementById('rouletteMiza').value);
+            if (miza > wallet) { alert("Fonduri insuficiente!"); return; }
+            if (miza <= 0 || isNaN(miza)) { alert("Introdu o miză validă!"); return; }
+
+            isSpinning = true;
+            wallet -= miza;
+            updateDisplay();
+
+            let wheel = document.getElementById('wheel');
+            
+            // Fix: Clear transition instantly and reset wheel spin degree tracking to 0
+            wheel.style.transition = 'none';
+            wheel.style.transform = 'rotate(0deg)';
+            wheel.innerText = "?";
+            wheel.style.background = 'conic-gradient(#000 0deg, #b81d1d 10deg, #000 20deg, #b81d1d 30deg, #000 40deg, #b81d1d 50deg, #000 60deg, #b81d1d 70deg, #000 80deg, #b81d1d 90deg, #000 100deg, #b81d1d 110deg, #000 120deg, #b81d1d 130deg, #000 140deg, #b81d1d 150deg, #000 160deg, #b81d1d 170deg, #000 180deg, #b81d1d 190deg, #000 200deg, #b81d1d 210deg, #000 220deg, #b81d1d 230deg, #000 240deg, #b81d1d 250deg, #000 260deg, #b81d1d 270deg, #000 280deg, #b81d1d 290deg, #000 300deg, #b81d1d 310deg, #000 320deg, #b81d1d 330deg, #000 340deg, #b81d1d 350deg, #14725f 360deg)';
+            
+            document.getElementById('rouletteResult').innerText = "Bila se învârte...";
+
+            // Trigger the fresh random rotation spin after a tiny 50ms pause
+            setTimeout(() => {
+                wheel.style.transition = 'transform 4s cubic-bezier(0.1, 0.8, 0.1, 1)';
+                let randomRotation = Math.floor(Math.random() * 360) + 2160; 
+                wheel.style.transform = `rotate(${randomRotation}deg)`;
+            }, 50);
+
+            setTimeout(() => {
+                let rolledNumber = Math.floor(Math.random() * 37);
+                let rolledColor = (rolledNumber === 0) ? 'VERDE' : (redNumbers.includes(rolledNumber) ? 'ROȘU' : 'NEGRU');
+                let rolledParity = (rolledNumber === 0) ? 'ZERO' : (rolledNumber % 2 === 0 ? 'PAR' : 'IMPAR');
+
+                wheel.innerText = rolledNumber;
+                wheel.style.background = rolledColor === 'ROȘU' ? 'var(--danger-red)' : (rolledColor === 'NEGRU' ? '#111' : 'var(--success-green)');
+
+                let hit = false;
+                let multiplier = 0;
+
+                if (activeBet.type === 'NUMBER' && activeBet.val === rolledNumber) {
+                    hit = true; multiplier = 36;
+                } else if (activeBet.type === 'COLOR' && activeBet.val === rolledColor) {
+                    hit = true; multiplier = 2;
+                } else if (activeBet.type === 'PARITY' && activeBet.val === rolledParity) {
+                    hit = true; multiplier = 2;
+                }
+
+                let resultDisplay = document.getElementById('rouletteResult');
+                if (hit) {
+                    let winPayout = miza * multiplier;
+                    wallet += winPayout;
+                    resultDisplay.innerHTML = `<span style="color:#2cb49b !important; font-weight:bold;">🎉 Număr extras: ${rolledNumber} (${rolledColor}). AI CÂȘTIGAT ${winPayout.toFixed(2)} RON!</span>`;
+                } else {
+                    resultDisplay.innerHTML = `<span style="color:#e53e3e !important; font-weight:bold;">❌ Număr extras: ${rolledNumber} (${rolledColor}). Ai pierdut.</span>`;
+                }
+
+                let histBox = document.getElementById('historyBox');
+                let ballBg = rolledColor === 'ROȘU' ? '#b81d1d' : (rolledColor === 'NEGRU' ? '#111' : '#14725f');
+                histBox.innerHTML = `<div class="hist-ball" style="background:${ballBg}; border:1px solid #fff">${rolledNumber}</div>` + histBox.innerHTML;
+                
+                isSpinning = false;
+                updateDisplay();
+            }, 4050);
+        }
+
+        updateDisplay();
+    </script>
+</body>
+</html>

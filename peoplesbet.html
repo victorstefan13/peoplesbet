@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>People's Bet - Pariuri Sportive și Cazino</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0b1120;
+            color: #d1d1d1;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #0d162a;
+            color: #ffca2a;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #5a411a;
+        }
+
+        .logo-text {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #ffca2a;
+            text-transform: uppercase;
+        }
+
+        .tagline {
+            font-size: 1rem;
+            color: #d1b16c;
+        }
+
+        nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+        }
+
+        nav ul li {
+            margin: 0 1rem;
+        }
+
+        nav ul li a {
+            text-decoration: none;
+            color: #d1d1d1;
+            font-weight: bold;
+            transition: color 0.3s;
+        }
+
+        nav ul li a:hover {
+            color: #ffca2a;
+        }
+
+        main {
+            padding: 2rem;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            grid-gap: 2rem;
+        }
+
+        .main-content {
+            background-color: rgba(22, 33, 62, 0.9);
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .games-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            grid-gap: 1.5rem;
+        }
+
+        .game-card {
+            background-color: #121e3c;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #2a3a5f;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .game-card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 6px 12px rgba(255, 202, 42, 0.2);
+        }
+
+        .game-icon {
+            font-size: 3rem;
+            color: #ffca2a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 150px;
+            background-color: #0b1120;
+        }
+
+        .game-title {
+            padding: 1rem;
+            text-align: center;
+            font-weight: bold;
+            color: #d1b16c;
+            text-transform: uppercase;
+        }
+
+        .bet-slip {
+            background-color: #0d162a;
+            padding: 2rem;
+            border-radius: 8px;
+            position: sticky;
+            top: 2rem;
+            height: fit-content;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .bet-slip-title {
+            font-size: 1.5rem;
+            color: #ffca2a;
+            border-bottom: 2px solid #5a411a;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .bet-slip-placeholder {
+            text-align: center;
+            color: #a0a0a0;
+            padding: 2rem 0;
+        }
+
+        .detailed-bets-section {
+            display: none; /* Hidden by default */
+            margin-top: 2rem;
+            border-top: 2px solid #5a411a;
+            padding-top: 1rem;
+        }
+
+        .detailed-bets-title {
+            color: #ffca2a;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .bet-option {
+            background-color: #1a2a4f;
+            border-radius: 4px;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #2a3a5f;
+            cursor: pointer;
+        }
+
+        .bet-option:hover {
+            background-color: #2a3a5f;
+        }
+
+        .bet-option-title {
+            font-weight: bold;
+        }
+
+        .bet-option-odds {
+            color: #ffca2a;
+            font-weight: bold;
+        }
+
+        footer {
+            background-color: #0d162a;
+            color: #a0a0a0;
+            padding: 2rem;
+            text-align: center;
+            border-top: 2px solid #5a411a;
+            margin-top: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div>
+            <span class="logo-text">People's Bet</span>
+            <div class="tagline">pariază în mod corect</div>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="#sports">Sport</a></li>
+                <li><a href="#casino">Cazino</a></li>
+                <li><a href="#promotions">Promoții</a></li>
+                <li><a href="#auth">Autentificare</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <div class="container">
+            <section class="main-content">
+                <h1 style="color: #ffca2a; text-align: center;">Bine ați venit, People's Bet!</h1>
+                <p style="text-align: center;">Explorați selecția noastră de jocuri și evenimente sportive.</p>
+                <div class="games-section">
+                    <div class="game-card" onclick="alert('Se va încărca simularea ruletei.');">
+                        <div class="game-icon">🎰</div>
+                        <div class="game-title">Ruletă (Simulare)</div>
+                    </div>
+                    <div class="game-card" onclick="alert('Se va încărca simularea jocurilor de cărți.');">
+                        <div class="game-icon">🃏</div>
+                        <div class="game-title">Jocuri de Cărți</div>
+                    </div>
+                    <div class="game-card" onclick="showDetailedBets();">
+                        <div class="game-icon">⚽</div>
+                        <div class="game-title">Pariuri Sportive</div>
+                    </div>
+                    <div class="game-card" onclick="alert('Se vor încărca sloturile.');">
+                        <div class="game-icon">🍒</div>
+                        <div class="game-title">Sloturi</div>
+                    </div>
+                </div>
+
+                <div id="detailedBetsSection" class="detailed-bets-section">
+                    <h2 class="detailed-bets-title">Opțiuni Pariuri Detaliate (Meci de Fotbal: Examen Liceu vs Profesori)</h2>
+                    
+                    <div class="bet-option" onclick="addToBetSlip('Jucător purtând tricoul nr. 10 marchează', 5.50);">
+                        <span class="bet-option-title">Jucător purtând tricoul nr. 10 marchează</span>
+                        <span class="bet-option-odds">5.50</span>
+                    </div>
+                    <div class="bet-option" onclick="addToBetSlip('Portarul cu tricoul nr. 1 apără un penalty', 12.00);">
+                        <span class="bet-option-title">Portarul cu tricoul nr. 1 apără un penalty</span>
+                        <span class="bet-option-odds">12.00</span>
+                    </div>
+                    <div class="bet-option" onclick="addToBetSlip('Primul cartonaș galben dat înainte de min. 10', 8.00);">
+                        <span class="bet-option-title">Primul cartonaș galben dat înainte de min. 10</span>
+                        <span class="bet-option-odds">8.00</span>
+                    </div>
+                    <div class="bet-option" onclick="addToBetSlip('Cartonaș galben primit de un profesor în min. 80+', 6.50);">
+                        <span class="bet-option-title">Cartonaș galben primit de un profesor în min. 80+</span>
+                        <span class="bet-option-odds">6.50</span>
+                    </div>
+                    <div class="bet-option" onclick="addToBetSlip('Echipa Liceu câștigă, dar primește roșu', 21.00);">
+                        <span class="bet-option-title">Echipa Liceu câștigă, dar primește roșu</span>
+                        <span class="bet-option-odds">21.00</span>
+                    </div>
+                    <p style="text-align: center;">Notă: Acestea sunt simulări pentru proiectul școlar. Mult succes!</p>
+                </div>
+            </section>
+
+            <aside class="bet-slip">
+                <div class="bet-slip-title">Bilet de Pariu</div>
+                <div id="betSlipContent">
+                    <div class="bet-slip-placeholder">Biletul dvs. este gol. Selectați o opțiune pentru a adăuga un pariu.</div>
+                </div>
+                <button style="width: 100%; padding: 1rem; margin-top: 1rem; background-color: #ffca2a; color: #0d162a; font-weight: bold; border: none; border-radius: 4px; cursor: pointer;" onclick="placeBet();">Plasează Pariul</button>
+            </aside>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2023 People's Bet. Un proiect școlar despre divertisment responsabil.</p>
+        <p>Jocul responsabil este important. Nu pariați mai mult decât vă puteți permite să pierdeți.</p>
+    </footer>
+
+    <script>
+        function showDetailedBets() {
+            const detailedBetsSection = document.getElementById('detailedBetsSection');
+            if (detailedBetsSection.style.display === 'block') {
+                detailedBetsSection.style.display = 'none';
+            } else {
+                detailedBetsSection.style.display = 'block';
+            }
+        }
+
+        function addToBetSlip(description, odds) {
+            const betSlipContent = document.getElementById('betSlipContent');
+            const placeholder = betSlipContent.querySelector('.bet-slip-placeholder');
+            if (placeholder) {
+                betSlipContent.innerHTML = '';
+            }
+
+            const newBetHtml = `
+                <div style="background-color: #1a2a4f; border-radius: 4px; padding: 0.5rem; margin-bottom: 0.5rem; border: 1px solid #2a3a5f; display: flex; justify-content: space-between;">
+                    <span>${description}</span>
+                    <span style="font-weight: bold; color: #ffca2a;">${odds.toFixed(2)}</span>
+                </div>
+            `;
+            betSlipContent.innerHTML += newBetHtml;
+        }
+
+        function placeBet() {
+            const betSlipContent = document.getElementById('betSlipContent');
+            const bets = betSlipContent.children.length;
+            if (bets > 0) {
+                alert(`Ați plasat ${bets} pariu/pariuri. Acest proiect școlar simulează pariurile. Succes la școală!`);
+                betSlipContent.innerHTML = '<div class="bet-slip-placeholder">Biletul dvs. este gol. Selectați o opțiune pentru a adăuga un pariu.</div>';
+            } else {
+                alert("Adăugați cel puțin un pariu înainte de a plasa.");
+            }
+        }
+    </script>
+</body>
+</html>
