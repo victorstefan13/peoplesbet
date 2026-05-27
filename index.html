@@ -5,27 +5,21 @@
     <title>People's Bet - Home & Pariuri</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        /* Modern Side-Banner Layout via CSS Backgrounds */
         body {
             margin: 0;
             padding: 0;
             background-color: #02060e;
-            /* Places the local logo.jpg on BOTH the left and right sides seamlessly */
             background-image: url('logo.jpg'), url('logo.jpg');
             background-position: left top, right top;
             background-repeat: no-repeat, no-repeat;
-            background-size: 320px auto, 320px auto; /* Perfect width so it doesn't overlap the gold boxes */
-            background-attachment: fixed, fixed; /* Keeps the artwork in place while scrolling */
+            background-size: 320px auto, 320px auto; 
+            background-attachment: fixed, fixed; 
         }
 
-        /* Responsive safety: If the screen gets too small, hide the side banners to keep the gameplay clean */
         @media (max-width: 1400px) {
-            body {
-                background-image: none;
-            }
+            body { background-image: none; }
         }
 
-        /* Wraps your main grids tightly so the content stays perfectly centered between the artwork */
         .content-wrapper {
             max-width: 1100px;
             margin: 0 auto;
@@ -50,6 +44,8 @@
         
         .slip-item { background: #fff; color: #000; padding: 10px; border-radius: 6px; margin-bottom: 8px; border: 1px solid var(--border-gold); position: relative; font-size: 0.9rem;}
         .remove-btn { position: absolute; top: 5px; right: 8px; background: transparent; border: none; color: #b81d1d; font-weight: bold; cursor: pointer; font-size: 1.1rem; }
+        
+        .market-header { margin-top: 2rem; margin-bottom: 1rem; border-left: 4px solid #f3c258; padding-left: 10px; }
     </style>
 </head>
 <body>
@@ -63,6 +59,8 @@
                 <li><a href="index.html" style="color:#f3c258">Sport</a></li>
                 <li><a href="roulette.html">Ruletă</a></li>
                 <li><a href="slots.html">Sloturi</a></li>
+                <li><a href="blackjack.html">Blackjack</a></li>
+                <li><a href="billiard.html">Biliard</a></li>
                 <li><div class="balance-box">Portofel: <span id="balanceDisplay">1000</span> RON</div></li>
             </ul>
         </nav>
@@ -80,11 +78,17 @@
                         <a href="slots.html" class="lobby-card" style="background-image: url('https://images.unsplash.com/photo-1596838132731-3301c3fd4317?auto=format&fit=crop&w=600&q=80')">
                             <span>Sloturi Royale <span class="odds">JOACĂ →</span></span>
                         </a>
+                        <a href="blackjack.html" class="lobby-card" style="background-image: url('https://images.unsplash.com/photo-1511193311914-0346f16efe90?auto=format&fit=crop&w=600&q=80')">
+                            <span>Blackjack Classic <span class="odds">JOACĂ →</span></span>
+                        </a>
+                        <a href="billiard.html" class="lobby-card" style="background-image: url('https://images.unsplash.com/photo-1628153096054-9457c86a1df8?auto=format&fit=crop&w=600&q=80')">
+                            <span>Biliard Pro <span class="odds">JOACĂ →</span></span>
+                        </a>
                     </div>
 
-                    <h2 class="margin-b">⚽ Pariuri Fotbal (Meciuri în Desfășurare)</h2>
+                    <h2 class="margin-b">⚽ Pariuri Sportive</h2>
                     
-                    <h3>Pariuri Standard (1X2)</h3>
+                    <h3 class="market-header">Fotbal - Rezultat Final (1X2)</h3>
                     <div class="bet-row" onclick="addBet('Real Madrid vs Man. City (Victorie Real)', 2.45)">
                         <span>Real Madrid vs Manchester City — <strong>Victorie Real Madrid</strong></span>
                         <span class="odds">2.45</span>
@@ -94,16 +98,50 @@
                         <span class="odds">3.40</span>
                     </div>
 
-                    <h3 style="margin-top: 1.5rem;">Pariuri Detaliate & Speciale (Props)</h3>
+                    <h3 class="market-header">Fotbal - Goluri & Scor</h3>
+                    <div class="bet-row" onclick="addBet('Real vs City (Ambele Marchează - DA)', 1.65)">
+                        <span>Real Madrid vs Man City — <strong>Ambele echipe marchează (DA)</strong></span>
+                        <span class="odds">1.65</span>
+                    </div>
+                    <div class="bet-row" onclick="addBet('FCSB vs Rapid (Peste 2.5 Goluri)', 2.10)">
+                        <span>FCSB vs Rapid — <strong>Peste 2.5 Goluri în meci</strong></span>
+                        <span class="odds">2.10</span>
+                    </div>
+                    <div class="bet-row" onclick="addBet('FCSB vs Rapid (Scor Corect 1-1)', 6.50)">
+                        <span>FCSB vs Rapid — <strong>Scor corect: 1-1</strong></span>
+                        <span class="odds">6.50</span>
+                    </div>
+
+                    <h3 class="market-header">🏀 Baschet - NBA</h3>
+                    <div class="bet-row" onclick="addBet('LA Lakers vs GS Warriors (Peste 220.5 puncte)', 1.95)">
+                        <span>LA Lakers vs Golden State — <strong>Peste 220.5 Puncte</strong></span>
+                        <span class="odds">1.95</span>
+                    </div>
+                    <div class="bet-row" onclick="addBet('Denver Nuggets (Handicap -5.5)', 1.88)">
+                        <span>Denver Nuggets — <strong>Handicap (-5.5)</strong></span>
+                        <span class="odds">1.88</span>
+                    </div>
+
+                    <h3 class="market-header">🎾 Tenis - ATP/WTA</h3>
+                    <div class="bet-row" onclick="addBet('Djokovic vs Alcaraz (Scor Corect 2-1)', 4.20)">
+                        <span>Novak Djokovic vs Carlos Alcaraz — <strong>Scor 2-1 la seturi</strong></span>
+                        <span class="odds">4.20</span>
+                    </div>
+
+                    <h3 class="market-header">Pariuri Speciale & Props</h3>
+                    <div class="bet-row" onclick="addBet('Vinícius Júnior (Marchează oricând)', 2.20)">
+                        <span>Vinícius Júnior — <strong>Marchează oricând în meci</strong></span>
+                        <span class="odds">2.20</span>
+                    </div>
                     <div class="bet-row" onclick="addBet('Jucătorul cu nr. 10 marchează în repriza a doua', 4.80)">
                         <span>Jucătorul cu <strong>tricoul numărul 10</strong> marchează în a doua repriză</span>
                         <span class="odds">4.80</span>
                     </div>
-                    <div class="bet-row" onclick="addBet('Cartonaș galben acordat în minutul 23 specific', 18.00)">
+                    <div class="bet-row" onclick="addBet('Cartonaș galben în minutul 23', 18.00)">
                         <span>Cineva primește un <strong>cartonaș galben exact în minutul 23</strong></span>
                         <span class="odds">18.00</span>
                     </div>
-                    <div class="bet-row" onclick="addBet('Portarul apără un penalty cu piciorul', 25.00)">
+                    <div class="bet-row" onclick="addBet('Portarul apără penalty cu piciorul', 25.00)">
                         <span>Portarul apără o lovitură de la 11m <strong>cu piciorul</strong></span>
                         <span class="odds">25.00</span>
                     </div>
@@ -117,13 +155,13 @@
                     
                     <div id="slipActions" style="display: none; margin-top: 15px;">
                         <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-weight: bold;">
-                            <span style="color: var(--text-main) !important;">Evenimente selectate:</span> <span id="betCount" style="color: var(--text-main) !important;">0</span>
+                            <span style="color: var(--text-main) !important;">Evenimente:</span> <span id="betCount">0</span>
                         </div>
                         <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-weight: bold;">
-                            <span style="color: var(--text-main) !important;">Cotă Totală:</span> <strong id="totalOdds" style="color: var(--danger-red)">1.00</strong>
+                            <span style="color: var(--text-main) !important;">Cotă Totală:</span> <strong id="totalOdds">1.00</strong>
                         </div>
                         <label style="font-weight: bold; display: block; margin-bottom: 5px; color: var(--text-main) !important;">Miză (RON):</label>
-                        <input type="number" id="betAmount" value="50" min="5" style="width:100%; padding: 8px; background: #070d18; color: #fff; border: 1px solid var(--border-gold); border-radius: 4px; margin-bottom: 15px; font-weight: bold;">
+                        <input type="number" id="betAmount" value="50" style="width:100%; padding: 8px; background: #070d18; color: #fff; border: 1px solid var(--border-gold); border-radius: 4px; margin-bottom: 15px; font-weight: bold;">
                         
                         <div style="display: flex; justify-content: space-between; margin-bottom: 15px; font-weight: bold; background: #fff; padding: 8px; border-radius: 4px; border: 1px solid var(--border-gold);">
                             <span>Câștig Potențial:</span> <span id="potentialWin" style="color: var(--success-green)">0.00 RON</span>
@@ -147,7 +185,7 @@
 
         function addBet(name, odds) {
             if (betSlipItems.some(item => item.name === name)) {
-                alert("Acest eveniment este deja pe bilet!");
+                alert("Deja pe bilet!");
                 return;
             }
             betSlipItems.push({ name, odds });
@@ -162,32 +200,27 @@
         function renderBetSlip() {
             const slipContent = document.getElementById('slipContent');
             const slipActions = document.getElementById('slipActions');
-            
             if (betSlipItems.length === 0) {
                 slipContent.innerHTML = '<p class="text-center" style="padding: 20px 0; color: var(--text-muted);">Biletul este gol. Selectează o cotă din stânga.</p>';
                 slipActions.style.display = 'none';
                 return;
             }
-
             let html = '';
             let combinedOdds = 1.00;
-
             betSlipItems.forEach((item, index) => {
                 combinedOdds *= item.odds;
                 html += `
                     <div class="slip-item">
                         <button class="remove-btn" onclick="removeBet(${index})">×</button>
-                        <div style="font-weight:bold; margin-bottom: 5px; padding-right: 15px; color: #000 !important;">${item.name}</div>
-                        <div style="color: var(--success-green); font-weight: bold;">Cotă: ${item.odds.toFixed(2)}</div>
+                        <div style="font-weight:bold; color: #000;">${item.name}</div>
+                        <div style="color: green; font-weight: bold;">Cotă: ${item.odds.toFixed(2)}</div>
                     </div>
                 `;
             });
-
             slipContent.innerHTML = html;
             document.getElementById('totalOdds').innerText = combinedOdds.toFixed(2);
             document.getElementById('betCount').innerText = betSlipItems.length;
             slipActions.style.display = 'block';
-            
             calculatePayout();
             document.getElementById('betAmount').oninput = calculatePayout;
         }
@@ -195,39 +228,23 @@
         function calculatePayout() {
             let stake = parseFloat(document.getElementById('betAmount').value) || 0;
             let combinedOdds = parseFloat(document.getElementById('totalOdds').innerText);
-            let totalPayout = stake * combinedOdds;
-            document.getElementById('potentialWin').innerText = totalPayout.toFixed(2) + " RON";
+            document.getElementById('potentialWin').innerText = (stake * combinedOdds).toFixed(2) + " RON";
         }
 
         function placeSportsBet() {
             let stake = parseFloat(document.getElementById('betAmount').value);
-            if (stake > wallet) {
-                alert("Fonduri insuficiente în portofel!");
-                return;
-            }
-            if (stake <= 0 || isNaN(stake)) {
-                alert("Te rog introdu o miză validă!");
-                return;
-            }
-
+            if (stake > wallet) return alert("Fonduri insuficiente!");
             wallet -= stake;
-            updateWalletDisplay();
-
-            let combinedOdds = parseFloat(document.getElementById('totalOdds').innerText);
-            let won = Math.random() > 0.4; 
-            if (won) {
-                let winAmount = stake * combinedOdds;
-                wallet += winAmount;
-                alert(`🎉 BILET CÂȘTIGĂTOR!\nAi câștigat: ${winAmount.toFixed(2)} RON!`);
+            if (Math.random() > 0.4) {
+                wallet += stake * parseFloat(document.getElementById('totalOdds').innerText);
+                alert("🎉 BILET CÂȘTIGĂTOR!");
             } else {
-                alert("❌ Bilet Pierdut. Cel puțin un meci de pe bilet a fost pierdut.");
+                alert("❌ Pierdut.");
             }
-            
             betSlipItems = [];
             renderBetSlip();
             updateWalletDisplay();
         }
-
         updateWalletDisplay();
     </script>
 </body>

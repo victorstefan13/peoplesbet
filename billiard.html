@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <title>People's Bet - Biliard Pro</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            margin: 0; padding: 0; background-color: #02060e;
+            background-image: url('logo.jpg'), url('logo.jpg');
+            background-position: left top, right top;
+            background-repeat: no-repeat, no-repeat;
+            background-size: 320px auto, 320px auto; 
+            background-attachment: fixed, fixed; 
+        }
+        @media (max-width: 1400px) { body { background-image: none; } }
+        .content-wrapper { max-width: 1100px; margin: 0 auto; padding: 2rem 1rem; position: relative; }
+
+        #poolCanvas {
+            background: #0a5c36;
+            border: 15px solid #4d2600;
+            border-radius: 15px;
+            display: block;
+            margin: 0 auto;
+            cursor: crosshair;
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+        }
+        .ui-panel { text-align: center; margin-top: 20px; color: #fff; }
+        .game-over-overlay {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: rgba(6, 11, 20, 0.95); color: #f3c258; padding: 40px;
+            border: 3px solid #f3c258; border-radius: 12px; display: none; text-align: center;
+            z-index: 10; box-shadow: 0 0 30px rgba(0,0,0,1);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div><span class="logo-text">People's Bet</span><div class="tagline">biliard pro</div></div>
+        <nav>
+            <ul>
+                <li><a href="index.html">Sport</a></li>
+                <li><a href="roulette.html">Ruletă</a></li>
+                <li><a href="slots.html">Sloturi</a></li>
+                <li><a href="blackjack.html">Blackjack</a></li>
+                <li><a href="billiard.html" style="color:#f3c258">Biliard</a></li>
+                <li><div class="balance-box">Portofel: <span id="balanceDisplay">1000</span> RON</div></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="content-wrapper">
+        <div id="gameOverScreen" class="game-over-overlay">
+            <h1 id="winStatus" style="font-size: 2.5rem; margin-bottom: 10px;">GAME OVER</h1>
+            <p id="winReason" style="font-size: 1.2rem; color: #fff; margin-bottom: 20px;"></p>
+            <button class="btn" style="padding: 12px 30px; font-size: 1.1rem;" onclick="startNewGame()">PORNEȘTE JOC NOU</button>
+        </div>
+
+        <main class="main-panel">
+            <h2 class="text-center">🎱 Sfidarea Biliard: Curăță Masa</h2>
+            <p class="text-center" style="color: var(--text-muted); margin-bottom: 15px;">
+                Plătești miza o singură dată pe joc. Bagă toate bilele colorate, apoi bila 8 pentru a câștiga <b>3x miza</b>!
+            </p>
+            
+            <canvas id="poolCanvas" width="800" height="400"></canvas>
+
+            <div class="ui-panel">
+                <div id="setupControls" style="margin-bottom: 15px;">
+                    Miză Joc: <input type="number" id="poolMiza" value="50" min="5" style="width: 70px; background: #000; color: #f3c258; border: 1px solid #f3c258; padding: 6px; font-weight: bold; text-align: center;"> RON 
+                    <button class="btn" style="margin-left: 15px; padding: 6px 20px;" onclick="startNewGame()">CUMPĂRĂ JOC NOU</button>
+                </div>
+                <div id="gameStatusActive" style="display: none; font-size: 1.1rem; color: #fae3a6;">
+                    🎯 Joc în desfășurare (Lovituri gratuite) | Bile colorate rămase: <strong id="ballCount" style="color:#fff;">14</strong>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('poolCanvas');
+        const ctx = canvas.getContext('2d');
+        let wallet = parseFloat(localStorage.getItem('peoples_bet_wallet')) || 1000;
+        
+        const BALL_RADIUS = 11;
+        const FRICTION = 0.988;
+        const POCKET_RADIUS = 25;
+        
+        const pockets = [
+            { x: 5, y: 5 },       { x: 400, y: -5 },     { x: 795, y: 5 },
+            { x: 5, y: 395 },     { x: 400, y: 405 },    { x: 795, y: 395 }
+        ];
+
+        let balls = [];
+        let cueBall;
+        let isDragging = false;
+        let gameActive = false;
+        let currentStake = 0;
+        let mousePos = { x: 0, y: 0 };
+
+        class Ball {
+            constructor(x, y, color, type) {
+                this.x = x; this.y = y;
+                this.vx = 0; this.vy = 0;
+                this.color = color;
+                this.type = type;
+                this.inPocket = false;
+            }
+
+            draw() {
+                if (this.inPocket) return;
+                
+                ctx.beginPath();
+                ctx.arc(this.x + 2, this.y + 2, BALL_RADIUS, 0, Math.PI * 2);
+                ctx.fillStyle = "rgba(0,0,0,0.25)";
+                ctx.fill();
+
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, BALL_RADIUS, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+                
+                let grad = ctx.createRadialGradient(this.x - 3, this.y - 3, 1, this.x, this.y, BALL_RADIUS);
+                grad.addColorStop(0, "rgba(255,255,255,0.4)");
+                grad.addColorStop(1, "rgba(0,0,0,0.25)");
+                ctx.fillStyle = grad;
+                ctx.fill();
+
+                ctx.strokeStyle = "rgba(0,0,0,0.5)";
+                ctx.lineWidth = 1;
+                ctx.stroke();
+            }
+
+            update() {
+                if (this.inPocket) return;
+                this.x += this.vx;
+                this.y += this.vy;
+                this.vx *= FRICTION;
+                this.vy *= FRICTION;
+
+                if (Math.abs(this.vx) < 0.08) this.vx = 0;
+                if (Math.abs(this.vy) < 0.08) this.vy = 0;
+
+                if (this.x < BALL_RADIUS) { this.x = BALL_RADIUS; this.vx *= -0.85; }
+                if (this.x > 800 - BALL_RADIUS) { this.x = 800 - BALL_RADIUS; this.vx *= -0.85; }
+                if (this.y < BALL_RADIUS) { this.y = BALL_RADIUS; this.vy *= -0.85; }
+                if (this.y > 400 - BALL_RADIUS) { this.y = 400 - BALL_RADIUS; this.vy *= -0.85; }
+
+                pockets.forEach(p => {
+                    let dist = Math.sqrt((this.x - p.x)**2 + (this.y - p.y)**2);
+                    if (dist < POCKET_RADIUS + 2) {
+                        this.inPocket = true;
+                        this.vx = 0; this.vy = 0;
+                        handlePocketedBall(this);
+                    }
+                });
+            }
+        }
+
+        function startNewGame() {
+            let miza = parseFloat(document.getElementById('poolMiza').value);
+            if (miza > wallet) {
+                alert("Fonduri insuficiente pentru această miză!");
+                return;
+            }
+            
+            wallet -= miza;
+            currentStake = miza;
+            updateWalletDisplay();
+
+            document.getElementById('gameOverScreen').style.display = 'none';
+            document.getElementById('setupControls').style.display = 'none';
+            document.getElementById('gameStatusActive').style.display = 'block';
+            
+            gameActive = true;
+            initTableSetup();
+        }
+
+        function initTableSetup() {
+            balls = [];
+            cueBall = new Ball(220, 200, "#ffffff", 'cue');
+            balls.push(cueBall);
+
+            let startX = 530, startY = 200;
+            let colors = ["#f3c258", "#b81d1d"];
+            let idx = 0;
+
+            for (let i = 0; i < 5; i++) {
+                for (let j = 0; j <= i; j++) {
+                    let type = 'object';
+                    let color = colors[idx % 2];
+                    idx++;
+                    
+                    if (i === 2 && j === 1) { 
+                        color = "#111111"; 
+                        type = 'black'; 
+                    }
+                    balls.push(new Ball(startX + i * 20, startY - (i * 10.5) + j * 21, color, type));
+                }
+            }
+        }
+
+        function handlePocketedBall(ball) {
+            if (!gameActive) return;
+
+            if (ball.type === 'cue') {
+                setTimeout(() => { 
+                    ball.inPocket = false; 
+                    ball.x = 220; 
+                    ball.y = 200; 
+                    ball.vx = 0; 
+                    ball.vy = 0; 
+                }, 1000);
+            } else if (ball.type === 'black') {
+                let remainingObjects = balls.filter(b => !b.inPocket && b.type === 'object').length;
+                if (remainingObjects > 0) {
+                    endGame(false, "Ai pierdut! Bila neagră (8) a fost introdusă prea devreme.");
+                } else {
+                    let winAmount = currentStake * 3;
+                    wallet += winAmount;
+                    updateWalletDisplay();
+                    endGame(true, `Felicitări! Ai curățat masa complet. Ai câștigat ${winAmount.toFixed(2)} RON!`);
+                }
+            }
+        }
+
+        function endGame(isWin, message) {
+            gameActive = false;
+            document.getElementById('gameOverScreen').style.display = 'block';
+            document.getElementById('winStatus').innerText = isWin ? "CÂȘTIGĂTOR! 🎉" : "JOC PIERDUT ❌";
+            document.getElementById('winReason').innerText = message;
+            document.getElementById('setupControls').style.display = 'block';
+            document.getElementById('gameStatusActive').style.display = 'none';
+        }
+
+        function resolveCollisions() {
+            for (let i = 0; i < balls.length; i++) {
+                for (let j = i + 1; j < balls.length; j++) {
+                    let b1 = balls[i], b2 = balls[j];
+                    if (b1.inPocket || b2.inPocket) continue;
+
+                    let dx = b2.x - b1.x, dy = b2.y - b1.y;
+                    let dist = Math.sqrt(dx * dx + dy * dy);
+                    let minDist = BALL_RADIUS * 2;
+
+                    if (dist < minDist) {
+                        let overlap = minDist - dist;
+                        let nx = dx / dist, ny = dy / dist;
+                        
+                        b1.x -= nx * (overlap * 0.5);
+                        b1.y -= ny * (overlap * 0.5);
+                        b2.x += nx * (overlap * 0.5);
+                        b2.y += ny * (overlap * 0.5);
+
+                        let kx = b1.vx - b2.vx, ky = b1.vy - b2.vy;
+                        let impulse = kx * nx + ky * ny;
+
+                        if (impulse > 0) {
+                            b1.vx -= impulse * nx;
+                            b1.vy -= impulse * ny;
+                            b2.vx += impulse * nx;
+                            b2.vy += impulse * ny;
+                        }
+                    }
+                }
+            }
+        }
+
+        function drawScene() {
+            ctx.fillStyle = "#0a5c36"; 
+            ctx.fillRect(0, 0, 800, 400);
+            
+            ctx.fillStyle = "#02060e";
+            pockets.forEach(p => {
+                ctx.beginPath(); 
+                ctx.arc(p.x, p.y, POCKET_RADIUS, 0, Math.PI * 2); 
+                ctx.fill();
+                ctx.strokeStyle = "#2e1700"; 
+                ctx.lineWidth = 4; 
+                ctx.stroke();
+            });
+            
+            resolveCollisions();
+            balls.forEach(b => { b.update(); b.draw(); });
+
+            // Interactive heavy target trace and giant custom cue line
+            if (isDragging && gameActive && !cueBall.inPocket) {
+                let dx = cueBall.x - mousePos.x, dy = cueBall.y - mousePos.y;
+                let length = Math.sqrt(dx*dx + dy*dy);
+                
+                if (length > 5) {
+                    let nx = dx / length;
+                    let ny = dy / length;
+
+                    // UPGRADED TRACE LINE: Thick, neon gold-white dashed trajectory map
+                    ctx.beginPath(); 
+                    ctx.setLineDash([8, 8]);
+                    ctx.lineWidth = 3;
+                    ctx.moveTo(cueBall.x, cueBall.y);
+                    ctx.lineTo(cueBall.x + nx * 400, cueBall.y + ny * 400);
+                    ctx.strokeStyle = "rgba(255, 235, 170, 0.75)"; 
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+
+                    // UPGRADED CUE STICK: Much longer, broader, with a custom ivory tip and wrap look
+                    let stickBaseX = mousePos.x;
+                    let stickBaseY = mousePos.y;
+                    
+                    // Main Wood Body of Cue Stick
+                    ctx.beginPath(); 
+                    ctx.lineWidth = 11; // Thickened body
+                    ctx.strokeStyle = "#5c3a21"; // Rich mahogany wood
+                    ctx.moveTo(stickBaseX, stickBaseY); 
+                    ctx.lineTo(stickBaseX - nx * 220, stickBaseY - ny * 220); // Length extended significantly
+                    ctx.stroke();
+
+                    // Cue Wrap / Handle detailing
+                    ctx.beginPath();
+                    ctx.lineWidth = 12;
+                    ctx.strokeStyle = "#1a1a1a"; // Premium black linen wrap texture
+                    ctx.moveTo(stickBaseX - nx * 140, stickBaseY - ny * 140);
+                    ctx.lineTo(stickBaseX - nx * 220, stickBaseY - ny * 220);
+                    ctx.stroke();
+
+                    // High visibility Ivory/White point tip
+                    ctx.beginPath();
+                    ctx.lineWidth = 9;
+                    ctx.strokeStyle = "#f0f0f0";
+                    ctx.moveTo(stickBaseX, stickBaseY);
+                    ctx.lineTo(stickBaseX - nx * 15, stickBaseY - ny * 15);
+                    ctx.stroke();
+                }
+            }
+
+            if (gameActive) {
+                let remainingObjects = balls.filter(b => !b.inPocket && b.type === 'object').length;
+                document.getElementById('ballCount').innerText = remainingObjects;
+            }
+            
+            requestAnimationFrame(drawScene);
+        }
+
+        canvas.addEventListener('mousedown', (e) => {
+            if (!gameActive || cueBall.inPocket) return;
+            let rect = canvas.getBoundingClientRect();
+            mousePos.x = e.clientX - rect.left;
+            mousePos.y = e.clientY - rect.top;
+            isDragging = true;
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            let rect = canvas.getBoundingClientRect();
+            mousePos.x = e.clientX - rect.left; 
+            mousePos.y = e.clientY - rect.top;
+        });
+
+        window.addEventListener('mouseup', () => {
+            if (isDragging && gameActive && !cueBall.inPocket) {
+                let dx = cueBall.x - mousePos.x, dy = cueBall.y - mousePos.y;
+                cueBall.vx = dx * 0.11; 
+                cueBall.vy = dy * 0.11;
+            }
+            isDragging = false;
+        });
+
+        function updateWalletDisplay() {
+            document.getElementById('balanceDisplay').innerText = wallet.toFixed(2);
+            localStorage.setItem('peoples_bet_wallet', wallet);
+        }
+
+        initTableSetup();
+        updateWalletDisplay();
+        drawScene();
+    </script>
+</body>
+</html>

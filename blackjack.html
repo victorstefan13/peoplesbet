@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <title>People's Bet - Blackjack</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            background-color: #02060e;
+            background-image: url('logo.jpg'), url('logo.jpg');
+            background-position: left top, right top;
+            background-repeat: no-repeat, no-repeat;
+            background-size: 320px auto, 320px auto;
+            background-attachment: fixed, fixed;
+        }
+        @media (max-width: 1400px) { body { background-image: none; } }
+        
+        .game-container { max-width: 600px; margin: 50px auto; background: #0a3d28; border: 8px solid #4d2600; border-radius: 20px; padding: 20px; text-align: center; color: white; box-shadow: 0 0 50px rgba(0,0,0,0.5); }
+        .card-area { display: flex; justify-content: center; gap: 10px; min-height: 140px; margin: 20px 0; }
+        .card { width: 90px; height: 130px; background: white; border-radius: 10px; color: black; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: bold; border: 2px solid #ccc; box-shadow: 3px 3px 10px rgba(0,0,0,0.3); position: relative; }
+        .card.hidden { background: #1a1a1a; color: #1a1a1a; border: 2px solid #f3c258; }
+        .card.hidden::after { content: "?"; color: #f3c258; font-size: 3rem; }
+        .score-badge { background: rgba(0,0,0,0.6); padding: 5px 15px; border-radius: 20px; font-weight: bold; color: #f3c258; margin-bottom: 10px; display: inline-block; }
+        .controls { margin-top: 30px; display: flex; justify-content: center; gap: 10px; }
+        .result-msg { height: 40px; margin-top: 20px; font-size: 1.5rem; font-weight: bold; color: #f3c258; }
+    </style>
+</head>
+<body>
+    <header>
+        <div><span class="logo-text">People's Bet</span><div class="tagline">blackjack</div></div>
+        <nav>
+            <ul>
+                <li><a href="index.html">Sport</a></li>
+                <li><a href="roulette.html">Ruletă</a></li>
+                <li><a href="slots.html">Sloturi</a></li>
+                <li><a href="blackjack.html" style="color:#f3c258">Blackjack</a></li>
+                <li><a href="billiard.html">Biliard</a></li>
+                <li><div class="balance-box">Portofel: <span id="balanceDisplay">1000</span> RON</div></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="game-container">
+        <div class="score-badge">Dealer: <span id="dealerScore">?</span></div>
+        <div id="dealerCards" class="card-area"></div>
+        
+        <hr style="border: 1px dashed rgba(255,255,255,0.2); margin: 30px 0;">
+
+        <div id="playerCards" class="card-area"></div>
+        <div class="score-badge">Tu: <span id="playerScore">0</span></div>
+
+        <div class="result-msg" id="message">Să jucăm!</div>
+
+        <div class="controls">
+            <input type="number" id="betInput" value="20" min="10" style="width: 70px; padding: 10px; border-radius: 5px; border: none; font-weight: bold;">
+            <button id="dealBtn" class="btn" onclick="startNewHand()">DEAL (JOACĂ)</button>
+            <button id="hitBtn" class="btn" onclick="hit()" style="display:none; background:#27ae60">CĂRȚI</button>
+            <button id="standBtn" class="btn" onclick="stand()" style="display:none; background:#c0392b">STAI</button>
+        </div>
+    </div>
+
+    <script>
+        let wallet = parseFloat(localStorage.getItem('peoples_bet_wallet')) || 1000;
+        let deck = [];
+        let playerHand = [];
+        let dealerHand = [];
+        let isGameOver = true;
+        
+        function updateWalletDisplay() {
+            // Update the UI
+            document.getElementById('balanceDisplay').innerText = wallet.toFixed(2);
+            // Immediately save the current value so other pages can see it
+            localStorage.setItem('peoples_bet_wallet', wallet);
+        }
+
+        function updateUI() {
+            document.getElementById('balanceDisplay').innerText = wallet.toFixed(2);
+            localStorage.setItem('peoples_bet_wallet', wallet);
+        }
+
+        function createDeck() {
+            const suits = ['♠', '♣', '♥', '♦'];
+            const values = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
+            deck = [];
+            for (let s of suits) {
+                for (let v of values) {
+                    let weight = parseInt(v);
+                    if (['J','Q','K'].includes(v)) weight = 10;
+                    if (v === 'A') weight = 11;
+                    deck.push({ val: v, suit: s, weight: weight });
+                }
+            }
+            deck.sort(() => Math.random() - 0.5);
+        }
+
+        function getHandTotal(hand) {
+            let total = hand.reduce((sum, card) => sum + card.weight, 0);
+            let aces = hand.filter(c => c.val === 'A').length;
+            while (total > 21 && aces > 0) { total -= 10; aces--; }
+            return total;
+        }
+
+        function startNewHand() {
+            let bet = parseFloat(document.getElementById('betInput').value);
+            if (bet > wallet) return alert("Fonduri insuficiente!");
+            
+            wallet -= bet;
+            updateUI();
+            createDeck();
+            
+            playerHand = [deck.pop(), deck.pop()];
+            dealerHand = [deck.pop(), deck.pop()];
+            isGameOver = false;
+
+            document.getElementById('dealBtn').style.display = 'none';
+            document.getElementById('hitBtn').style.display = 'inline-block';
+            document.getElementById('standBtn').style.display = 'inline-block';
+            document.getElementById('message').innerText = "";
+            
+            renderHands(false);
+            
+            // Checking for natural player blackjack right at the start
+            if (getHandTotal(playerHand) === 21) {
+                endGame('win');
+            }
+        }
+
+        function renderHands(revealDealer) {
+            const pArea = document.getElementById('playerCards');
+            const dArea = document.getElementById('dealerCards');
+            pArea.innerHTML = ""; dArea.innerHTML = "";
+
+            playerHand.forEach(c => {
+                pArea.innerHTML += `<div class="card">${c.val}${c.suit}</div>`;
+            });
+            document.getElementById('playerScore').innerText = getHandTotal(playerHand);
+
+            dealerHand.forEach((c, i) => {
+                if (i === 0 && !revealDealer) {
+                    dArea.innerHTML += `<div class="card hidden"></div>`;
+                    document.getElementById('dealerScore').innerText = "?";
+                } else {
+                    dArea.innerHTML += `<div class="card">${c.val}${c.suit}</div>`;
+                }
+            });
+            
+            if (revealDealer) {
+                document.getElementById('dealerScore').innerText = getHandTotal(dealerHand);
+            }
+        }
+
+        function hit() {
+            if (isGameOver) return;
+            playerHand.push(deck.pop());
+            renderHands(false);
+            if (getHandTotal(playerHand) > 21) endGame('lose_bust');
+        }
+
+        function stand() {
+            if (isGameOver) return;
+            
+            // Dealer draws cards on anything below a soft/hard 17
+            while (getHandTotal(dealerHand) < 17) {
+                dealerHand.push(deck.pop());
+            }
+            
+            let pTotal = getHandTotal(playerHand);
+            let dTotal = getHandTotal(dealerHand);
+
+            if (dTotal > 21) {
+                endGame('win_dealer_bust');
+            } else if (pTotal > dTotal) {
+                endGame('win');
+            } else if (dTotal > pTotal) {
+                endGame('lose');
+            } else {
+                endGame('push');
+            }
+        }
+
+        function endGame(outcome) {
+            isGameOver = true;
+            renderHands(true); 
+            
+            let currentBet = parseFloat(document.getElementById('betInput').value);
+            let msg = "";
+
+            // centralizing money management safely to prevent UI write overrides
+            switch(outcome) {
+                case 'win':
+                    wallet += (currentBet * 2);
+                    msg = "AI CÂȘTIGAT! 🎉";
+                    break;
+                case 'win_dealer_bust':
+                    wallet += (currentBet * 2);
+                    msg = "AI CÂȘTIGAT! Dealerul a depășit 21. 💸";
+                    break;
+                case 'push':
+                    wallet += currentBet; // return original bet
+                    msg = "REMIZĂ (PUSH). 🤝";
+                    break;
+                case 'lose_bust':
+                    msg = "AI SĂRIT PESTE 21! Dealerul câștigă. ❌";
+                    break;
+                case 'lose':
+                    msg = "DEALERUL CÂȘTIGĂ. ❌";
+                    break;
+            }
+
+            document.getElementById('message').innerText = msg;
+            document.getElementById('dealBtn').style.display = 'inline-block';
+            document.getElementById('hitBtn').style.display = 'none';
+            document.getElementById('standBtn').style.display = 'none';
+            
+            updateUI();
+        }
+
+        updateUI();
+    </script>
+</body>
+</html>
